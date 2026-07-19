@@ -55,11 +55,24 @@ public class CheckoutServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        List<ChiTietDonHang> cart = (List<ChiTietDonHang>) session.getAttribute("CART_ITEMS");
 
+        if (cart == null || cart.isEmpty()) {
+            response.sendRedirect("cart.jsp");
+            return;
+        }
+
+        // Tính tổng tiền tạm thời để hiển thị trên trang checkout
+        double total = 0;
+        for (ChiTietDonHang item : cart) {
+            total += (item.getSoLuong() * item.getDonGia());
+        }
+
+        request.setAttribute("totalAmount", total);
+        request.getRequestDispatcher("checkout.jsp").forward(request, response);
+    }
     /**
      * Handles the HTTP <code>POST</code> method.
      *
